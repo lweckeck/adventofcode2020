@@ -1,41 +1,29 @@
-import sys
-import itertools
-import math
 import re
+import functools as ft
+from typing import Generator, Optional, Tuple, Iterable
 
-pattern = re.compile("(?P<min>[0-9]+)-(?P<max>[0-9]+) (?P<char>[a-z]): (?P<pw>[a-z]+)")
+pattern = re.compile("([0-9]+)-([0-9]+) ([a-z]): ([a-z]+)")
+
+def parse(lines: Iterable[str]) -> Iterable[Tuple[int, int, str, str]]:
+    for line in lines:
+        match = pattern.match(line)
+        if match is not None:
+            yield (int(match.group(1)), int(match.group(2)), match.group(3), match.group(4))
 
 # rule 1
-valid = 0
-with open('day2/input') as f:
-    for line in f:
-        match = pattern.match(line)
-        if match is None:
-            print(f'Invalid format: {line}', sys.stderr)
-            continue
-        pw = match.group('pw')
-        char = match.group('char')
-        minc = int(match.group('min'))
-        maxc = int(match.group('max'))
-        count = pw.count(char)
-        if minc <= count and count <= maxc:
-            valid += 1
+def valid(lower: int, upper: int, char: str, pw:str ) -> bool:
+    count = pw.count(char)
+    return  lower <= count and count <= upper
 
-print(valid)
+with open('day2/input') as f:
+    c = sum(1 for t in parse(f) if valid(*t))
+    print(c)
 
 # rule 2
-valid = 0
-with open('day2/input') as f:
-    for line in f:
-        match = pattern.match(line)
-        if match is None:
-            print(f'Invalid format: {line}', sys.stderr)
-            continue
-        pw = match.group('pw')
-        char = match.group('char')
-        p1 = int(match.group('min'))
-        p2 = int(match.group('max'))
-        if sum(map(int, [pw[p1-1] == char, pw[p2-1] == char])) == 1:
-            valid += 1
 
-print(valid)
+def valid2(left: int, right: int, char: str, pw: str) -> bool:
+    return sum(map(int, [pw[left-1] == char, pw[right-1] == char])) == 1
+
+with open('day2/input') as f:
+    c = sum(1 for t in parse(f) if valid2(*t))
+    print(c)
