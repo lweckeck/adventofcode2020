@@ -1,50 +1,35 @@
+import itertools
 from typing import Dict, Iterable
 import re
 
-mandatory_keys = {'byr', 'iyr', 'eyr', 'hgt', 'hcl', 'ecl', 'pid' }
-
 Pass = Dict[str, str]
 
-def parseLine(line: str) -> Pass:
-    return { key: value for (key, value) in (token.split(':') for token in line.split())}
+def parse(lines: Iterable[str]) -> Iterable[Pass]:
+    for (nonempty, group) in itertools.groupby((line.strip() for line in lines), lambda l: len(l) > 0):
+        if nonempty:
+            tokens = [token.split(':', 2) for tokens in (line.split() for line in group) for token in tokens]
+            yield {key: value for (key, value) in tokens}
 
-def merge(partials: Iterable[Pass]) -> Iterable[Pass]:
-    current: Pass = {}
-    for partial in partials:
-        if len(partial) == 0 and len(current) > 0:
-            yield current
-            current = {}
-        else:
-            current.update(partial)
-    if len(current) > 0:
-        yield current
-
+mandatory_keys = {'byr', 'iyr', 'eyr', 'hgt', 'hcl', 'ecl', 'pid' }
 def valid(p: Pass) -> bool:
-    fields_present = mandatory_keys.issubset(p.keys())
+    return mandatory_keys.issubset(p.keys())
+
+def valid2(p: Pass) -> bool:
+    fields_present = valid(p)
     fields_valid = [valid_field(k, v) for (k, v) in p.items()]
     return fields_present and all(fields_valid)
 
-# part 2
 def valid_field(key: str, value: str) -> bool:
     try:
         if key == 'byr':
-            byr = int(value)
-            return 1920 <= byr and byr <= 2002
+            return 1920 <= (byr := int(value)) and byr <= 2002
         elif key == 'iyr':
-            iyr = int(value)
-            return 2010 <= iyr and iyr <= 2020
+            return 2010 <= (iyr := int(value)) and iyr <= 2020
         elif key == 'eyr':
-            iyr = int(value)
-            return 2020 <= iyr and iyr <= 2030
-        elif key == 'hgt':
-            if value.endswith('cm'):
-                cm = int(value[0:-2])
-                return 150 <= cm and cm <= 193
-            elif value.endswith('in'):
-                inch = int(value[0:-2])
-                return 59 <= inch and inch <= 76
-            else:
-                return False
+            return 2020 <= (iyr := int(value)) and iyr <= 2030
+        elif key == 'hgt' and (match := re.fullmatch('([0-9]+)(cm|in)', value)):
+            height, unit = int(match.group(1)), match.group(2)
+            return (150 <= height and height <= 193) if unit == 'cm' else (59 <= height and height <= 76)
         elif key == 'hcl':
             return re.fullmatch('#[a-f0-9]{6}', value) is not None
         elif key == 'ecl':
@@ -55,12 +40,12 @@ def valid_field(key: str, value: str) -> bool:
             return True
     except: pass
     return False
-# end part 2
-
-def test(lines: Iterable[str]):
-    passes = merge(map(parseLine, lines))
-    count = sum(1 for p in passes if valid(p))
-    print(count)
 
 if __name__ == '__main__':
-    test(open('day4/input'))
+    with open('day4/input') as f:
+        passes = list(parse(f))
+        print('Part 1')
+        print(sum(1 for p in passes if valid(p)))
+
+        print('Part 2')
+        print(sum(1 for p in passes if valid2(p)))

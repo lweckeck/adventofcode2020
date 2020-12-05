@@ -1,29 +1,28 @@
 import re
 import functools as ft
-from typing import Generator, Optional, Tuple, Iterable
+from typing import Generator, Optional, Tuple, Iterable, Union
+
+Input = Tuple[int, int, str, str]
 
 pattern = re.compile("([0-9]+)-([0-9]+) ([a-z]): ([a-z]+)")
+def parse(line: str) -> Optional[Input]:
+    if (match := pattern.match(line)) is not None:
+        return (int(match.group(1)), int(match.group(2)), match.group(3), match.group(4))
+    else:
+        return None
 
-def parse(lines: Iterable[str]) -> Iterable[Tuple[int, int, str, str]]:
-    for line in lines:
-        match = pattern.match(line)
-        if match is not None:
-            yield (int(match.group(1)), int(match.group(2)), match.group(3), match.group(4))
-
-# rule 1
 def valid(lower: int, upper: int, char: str, pw:str ) -> bool:
-    count = pw.count(char)
-    return  lower <= count and count <= upper
-
-with open('day2/input') as f:
-    c = sum(1 for t in parse(f) if valid(*t))
-    print(c)
-
-# rule 2
+    return  lower <= (count := pw.count(char)) and count <= upper
 
 def valid2(left: int, right: int, char: str, pw: str) -> bool:
     return sum(map(int, [pw[left-1] == char, pw[right-1] == char])) == 1
 
-with open('day2/input') as f:
-    c = sum(1 for t in parse(f) if valid2(*t))
-    print(c)
+if __name__ == "__main__":
+    with open('day2/input') as f:
+        inputs = [parsed for line in f if (parsed := parse(line)) is not None]
+
+        print("# Part 1")
+        print(sum(1 for i in inputs if valid(*i)))
+
+        print('# Part 2')
+        print(sum (1 for i in inputs if valid2(*i)))
