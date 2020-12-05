@@ -20,25 +20,23 @@ def valid2(p: Pass) -> bool:
     return fields_present and all(fields_valid)
 
 def valid_field(key: str, value: str) -> bool:
-    try:
-        if key == 'byr':
-            return 1920 <= (byr := int(value)) and byr <= 2002
-        elif key == 'iyr':
-            return 2010 <= (iyr := int(value)) and iyr <= 2020
-        elif key == 'eyr':
-            return 2020 <= (iyr := int(value)) and iyr <= 2030
-        elif key == 'hgt' and (match := re.fullmatch('([0-9]+)(cm|in)', value)):
-            height, unit = int(match.group(1)), match.group(2)
-            return (150 <= height and height <= 193) if unit == 'cm' else (59 <= height and height <= 76)
-        elif key == 'hcl':
-            return re.fullmatch('#[a-f0-9]{6}', value) is not None
-        elif key == 'ecl':
-            return value in {'amb', 'blu', 'brn', 'gry', 'grn', 'hzl',  'oth'}
-        elif key == 'pid':
-            return re.fullmatch('[0-9]{9}', value) is not None
-        elif key == 'cid':
-            return True
-    except: pass
+    if key == 'byr' and value.isdigit():
+        return 1920 <= (byr := int(value)) and byr <= 2002
+    elif key == 'iyr' and value.isdigit():
+        return 2010 <= (iyr := int(value)) and iyr <= 2020
+    elif key == 'eyr' and value.isdigit():
+        return 2020 <= (iyr := int(value)) and iyr <= 2030
+    elif key == 'hgt' and (match := re.fullmatch('([0-9]+)(cm|in)', value)):
+        height, unit = int(match.group(1)), match.group(2)
+        return (150 <= height and height <= 193) if unit == 'cm' else (59 <= height and height <= 76)
+    elif key == 'hcl':
+        return re.fullmatch('#[a-f0-9]{6}', value) is not None
+    elif key == 'ecl':
+        return value in {'amb', 'blu', 'brn', 'gry', 'grn', 'hzl',  'oth'}
+    elif key == 'pid':
+        return re.fullmatch('[0-9]{9}', value) is not None
+    elif key == 'cid':
+        return True
     return False
 
 if __name__ == '__main__':
