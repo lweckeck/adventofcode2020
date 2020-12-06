@@ -11,10 +11,5 @@ def countAnswers(groups: Iterable[Iterable[str]], combine: Callable[[Set[str], S
 if __name__ == "__main__":
     with open('day6/input') as f:
         groups = groupLines(f)
-        print('# Part 1')
-        answers = countAnswers(groups, set.union)
-        print(sum(len(a) for a in answers))
-
-        print('#Part 2')
-        answers2 = countAnswers(groups, set.intersection)
-        print(sum(len(a) for a in answers2))
+        print(f'Part 1: {sum(len(a) for a in countAnswers(groups, set.union))}')
+        print(f'Part 2: {sum(len(a) for a in countAnswers(groups, set.intersection))}')
