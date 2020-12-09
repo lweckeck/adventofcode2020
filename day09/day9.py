@@ -16,15 +16,15 @@ def find_weakness(numbers: List[int], target: int) -> int:
     return min(numbers[i:j]) + max(numbers[i:j])
 
 def find_weakness2(numbers: List[int], target: int) -> int:
-    i, j = 0, 1
-    while j < len(numbers):
-        if (s := sum(numbers[i:j+1])) == target:
-            return min(numbers[i:j+1]) + max(numbers[i:j+1])
+    i, j = 0, 2 # i, j are left inclusive, right exclusive indices of sliding window
+    while j <= len(numbers):
+        if (s := sum(numbers[i:j])) == target:
+            return min(numbers[i:j]) + max(numbers[i:j])
         elif s < target:
             j += 1
         elif s > target:
             i += 1
-            if j <= i:
+            if not i < j:
                 j += 1
     return -1
 
