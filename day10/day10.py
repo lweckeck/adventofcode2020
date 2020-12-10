@@ -1,11 +1,7 @@
-from typing import Dict, List
+from typing import Counter, List, Mapping
 
-def distribution(adapters: List[int]) -> Dict[int, int]:
-    res: Dict[int, int] = dict()
-    for i in range(1, len(adapters)):
-        d = adapters[i] - adapters[i-1]
-        res[d] = res[d] + 1 if d in res else 1
-    return res
+def distribution(adapters: List[int]) -> Mapping[int, int]:
+    return Counter(adapters[i] - adapters[i-1] for i in range(1, len(adapters)))
 
 def count_arrangements(adapters: List[int]) -> int:
     connections = [1]
