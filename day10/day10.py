@@ -1,9 +1,11 @@
-import itertools
 from typing import Dict, List
 
 def distribution(adapters: List[int]) -> Dict[int, int]:
-    deltas = [adapters[i] - adapters[i-1] for i in range(1, len(adapters))]
-    return {n: sum(1 for _ in group) for (n, group) in itertools.groupby(sorted(deltas))}
+    res: Dict[int, int] = dict()
+    for i in range(1, len(adapters)):
+        d = adapters[i] - adapters[i-1]
+        res[d] = res[d] + 1 if d in res else 1
+    return res
 
 def count_arrangements(adapters: List[int]) -> int:
     connections = [1]
